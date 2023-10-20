@@ -3,7 +3,7 @@ COPY php.ini /usr/local/etc/php/
 
 RUN apt-get update \
   && apt-get install -y zlib1g-dev mariadb-client curl gnupg libzip-dev \
-  && docker-php-ext-install zip pdo_mysql
+  && docker-php-ext-install zip pdo_mysql vim
 RUN curl -sL https://deb.nodesource.com/setup_20.x | bash -
 RUN apt-get install -y nodejs
 RUN npm install npm@latest -g
@@ -28,3 +28,6 @@ RUN composer global require "laravel/installer"
 
 COPY install-laravel /usr/local/bin/
 RUN chmod 755 /usr/local/bin/install-laravel
+
+COPY remove-laravel /usr/local/bin/
+RUN chmod 755 /usr/local/bin/remove-laravel
