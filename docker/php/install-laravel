@@ -1,0 +1,121 @@
+#!/bin/bash
+
+# Laravel Install
+laravel_install () {
+    composer create-project --prefer-dist laravel/laravel=10.* .
+    sed -i'' -e "s/\(DB_CONNECTION=\).*/\1mysql/" .env
+    sed -i'' -e "s/\(DB_HOST=\).*/\1db/" .env
+    sed -i'' -e "s/\(DB_PORT=\).*/\13306/" .env
+    sed -i'' -e "s/\(DB_DATABASE=\).*/\1laravel/" .env
+    sed -i'' -e "s/\(DB_USERNAME=\).*/\1laravel-user/" .env
+    sed -i'' -e "s/\(DB_PASSWORD=\).*/\1laravel-pass/" .env
+    php artisan migrate
+}
+
+# Laravel Breeze Install
+laravel_breeze_install () {
+    breeze_type=$1
+    composer require laravel/breeze --dev
+    php artisan breeze:install ${breeze_type}
+    npm install
+    npm run dev
+}
+
+# Laravel Jetstream Install
+laravel_jetstream_install () {
+    jetstream_type=$1
+    teams=$2
+    composer require laravel/jetstream
+    php artisan jetstream:install ${jetstream_type} ${teams}
+    php artisan migrate:refresh
+}
+
+# Help
+usage () {
+  cat << EOM
+Usage: $(basename "$0") [OPTION]...
+      --breeze          install laravel-breeze
+      --breeze=TYPE     install laravel-breeze TYPE: vue or react
+      --jetstream       install laravel-jetstream
+      --jetstream=TYPE  install laravel-jetstream TYPE: livewire or inertia
+      --teams           add teams option for laravel-jetstream
+  -h, --help            display this help and exit
+  -v, --version         output version information and exit
+EOM
+}
+
+# Version
+version () {
+    echo 'v1.0.0'
+}
+
+cd /var/www
+
+use_ui=false
+use_breeze=false
+use_jetstream=false
+
+while getopts h-:v-: opt; do
+    optarg="$OPTARG"
+    if [ "$opt" = - ]; then
+        opt="-${OPTARG%%=*}"
+        optarg="${OPTARG/${OPTARG%%=*}/}"
+        optarg="${optarg#=}"
+
+        if [ -z "$optarg" ] && [ ! "${!OPTIND}" = -* ]; then
+            optarg="${!OPTIND}"
+            shift
+        fi
+    fi
+
+    case "-$opt" in
+        --breeze)
+            use_breeze=true
+            breeze_type=''
+            if [ "${optarg}" == 'vue' ] \
+                || [ "${optarg}" == 'react' ] \
+            ; then
+                breeze_type="$optarg"
+            fi
+            ;;
+        --jetstream)
+            use_jetstream=true
+            jetstream_type=''
+            if [ "${optarg}" == 'livewire' ] \
+                || [ "${optarg}" == 'inertia' ] \
+            ; then
+                jetstream_type="$optarg"
+            fi
+            ;;
+        --teams)
+            teams='--teams'
+            ;;
+        -h|--help)
+            usage
+            exit
+            ;;
+        -v|--version)
+            version
+            exit
+            ;;
+        --)
+            break
+            ;;
+        -\?)
+            usage
+            exit 1
+            ;;
+        --*)
+            echo "$0: illegal option -- ${opt##-}"
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+laravel_install
+if "${use_breeze}"; then
+    laravel_breeze_install ${breeze_type}
+elif "${use_jetstream}"; then
+    laravel_jetstream_install ${jetstream_type} ${teams}
+fi
