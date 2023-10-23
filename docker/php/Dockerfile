@@ -2,8 +2,8 @@ FROM php:8.2.11-fpm
 COPY php.ini /usr/local/etc/php/
 
 RUN apt-get update \
-  && apt-get install -y zlib1g-dev mariadb-client curl gnupg libzip-dev \
-  && docker-php-ext-install zip pdo_mysql vim
+  && apt-get install -y vim zlib1g-dev mariadb-client curl gnupg libzip-dev \
+  && docker-php-ext-install zip pdo_mysql
 RUN curl -sL https://deb.nodesource.com/setup_20.x | bash -
 RUN apt-get install -y nodejs
 RUN npm install npm@latest -g
