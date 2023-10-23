@@ -24,9 +24,9 @@ laravel_breeze_install () {
 # Laravel Jetstream Install
 laravel_jetstream_install () {
     jetstream_type=$1
-    teams=$2
+    options=${@:2}
     composer require laravel/jetstream
-    php artisan jetstream:install ${jetstream_type} ${teams}
+    php artisan jetstream:install ${jetstream_type} ${options}
     php artisan migrate:refresh
 }
 
@@ -39,6 +39,8 @@ Usage: $(basename "$0") [OPTION]...
       --jetstream       install laravel-jetstream
       --jetstream=TYPE  install laravel-jetstream TYPE: livewire or inertia
       --teams           add teams option for laravel-jetstream
+      --api             add API support option for laravel-jetstream
+      --verification    add email verification support option for laravel-jetstream
   -h, --help            display this help and exit
   -v, --version         output version information and exit
 EOM
@@ -54,68 +56,76 @@ cd /var/www
 use_ui=false
 use_breeze=false
 use_jetstream=false
+jetstream_options=''
 
-while getopts h-:v-: opt; do
-    optarg="$OPTARG"
+while getopts :-: opt; do
     if [ "$opt" = - ]; then
-        opt="-${OPTARG%%=*}"
-        optarg="${OPTARG/${OPTARG%%=*}/}"
-        optarg="${optarg#=}"
-
-        if [ -z "$optarg" ] && [ ! "${!OPTIND}" = -* ]; then
-            optarg="${!OPTIND}"
-            shift
-        fi
+        case "${OPTARG%%=*}" in
+            breeze)
+                use_breeze=true
+                case "${OPTARG##*=}" in
+                    vue|react)
+                        breeze_type="${OPTARG##*=}"
+                        ;;
+                esac
+                ;;
+            jetstream)
+                use_jetstream=true
+                case "${OPTARG##*=}" in
+                    livewire|inertia)
+                        jetstream_type="${OPTARG##*=}"
+                        ;;
+                esac
+                ;;
+            teams)
+                jetstream_options="${jetstream_options} --teams"
+                ;;
+            api)
+                jetstream_options="${jetstream_options} --api"
+                ;;
+            verification)
+                jetstream_options="${jetstream_options} --verification"
+                ;;
+            help)
+                usage
+                exit
+                ;;
+            version)
+                version
+                exit
+                ;;
+            *)
+                echo "$0: illegal option -- ${OPTARG%%=*}"
+                usage
+                exit 1
+                ;;
+        esac
+    else
+        case "$opt" in
+            h)
+                usage
+                exit
+                ;;
+            v)
+                version
+                exit
+                ;;
+            *)
+                echo "$0: illegal option -$opt"
+                usage
+                exit 1
+                ;;
+        esac
     fi
-
-    case "-$opt" in
-        --breeze)
-            use_breeze=true
-            breeze_type=''
-            if [ "${optarg}" == 'vue' ] \
-                || [ "${optarg}" == 'react' ] \
-            ; then
-                breeze_type="$optarg"
-            fi
-            ;;
-        --jetstream)
-            use_jetstream=true
-            jetstream_type=''
-            if [ "${optarg}" == 'livewire' ] \
-                || [ "${optarg}" == 'inertia' ] \
-            ; then
-                jetstream_type="$optarg"
-            fi
-            ;;
-        --teams)
-            teams='--teams'
-            ;;
-        -h|--help)
-            usage
-            exit
-            ;;
-        -v|--version)
-            version
-            exit
-            ;;
-        --)
-            break
-            ;;
-        -\?)
-            usage
-            exit 1
-            ;;
-        --*)
-            echo "$0: illegal option -- ${opt##-}"
-            usage
-            exit 1
-            ;;
-    esac
+    # Optional arguments
+    if [ -z "$OPTARG" ] && [ "${!OPTIND}" != -* ]; then
+        OPTIND=$((OPTIND + 1))
+    fi
 done
 
 laravel_install
 if "${use_breeze}"; then
     laravel_breeze_install ${breeze_type}
 elif "${use_jetstream}"; then
-    laravel_jetstream_install ${jetstream_type} ${teams}
+    laravel_jetstream_install ${jetstream_type} ${jetstream_options}
 fi

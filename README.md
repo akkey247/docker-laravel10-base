@@ -27,6 +27,8 @@ $ docker-compose exec php bash
 |--jetstream|Laravel Jetstream をインストールする。標準インストール(Livewire)。|
 |--jetstream=TYPE|Laravel Jetstream をインストールする。TYPEには livewire, inertia が指定できる。|
 |--teams|Laravel Jetstream のチーム機能を有効にする。|
+|--api|Laravel Jetstream のAPI機能を有効にする。|
+|--verification|Laravel Jetstream のメールバリデーション機能を有効にする。|
 |-h, --help|ヘルプを表示する|
 |-v, --version|コマンドのバージョンを表示する|
 
