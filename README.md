@@ -17,7 +17,7 @@ $ docker-compose exec php bash
 ### 3. 自動インストール
 
 ```
-/var/www# install-laravel --jetstream=livewire --teams
+/var/www# install-laravel --jetstream=livewire --verification
 ```
 
 |オプション|説明|
