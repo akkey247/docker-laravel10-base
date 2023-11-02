@@ -9,6 +9,7 @@ laravel_install () {
     sed -i'' -e "s/\(DB_DATABASE=\).*/\1laravel/" .env
     sed -i'' -e "s/\(DB_USERNAME=\).*/\1laravel-user/" .env
     sed -i'' -e "s/\(DB_PASSWORD=\).*/\1laravel-pass/" .env
+    sed -i'' -e "s/\(MAIL_HOST=\).*/\1mailhog/" .env
     php artisan migrate
 }
 
