@@ -2,7 +2,7 @@ FROM php:8.2.11-fpm
 COPY php.ini /usr/local/etc/php/
 
 RUN apt-get update \
-  && apt-get install -y vim zlib1g-dev mariadb-client curl gnupg libzip-dev \
+  && apt-get install -y vim git gh zlib1g-dev mariadb-client curl gnupg libzip-dev \
   && docker-php-ext-install zip pdo_mysql
 RUN curl -sL https://deb.nodesource.com/setup_20.x | bash -
 RUN apt-get install -y nodejs
@@ -14,6 +14,9 @@ RUN php -r "if (hash_file('SHA384', 'composer-setup.php') === trim(file_get_cont
 RUN php composer-setup.php
 RUN php -r "unlink('composer-setup.php');"
 RUN mv composer.phar /usr/local/bin/composer
+
+# GitHub setting
+RUN git config --global user.email "temporary_user@example.com" && git config --global user.name "Temporary User"
 
 ENV COMPOSER_ALLOW_SUPERUSER 1
 
