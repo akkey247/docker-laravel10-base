@@ -24,6 +24,9 @@ ENV COMPOSER_HOME /composer
 
 ENV PATH $PATH:/composer/vendor/bin
 
+ENV LANG C.UTF-8
+ENV LANGUAGE en_US:
+
 
 WORKDIR /var/www
 
