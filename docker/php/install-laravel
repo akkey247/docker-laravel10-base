@@ -22,6 +22,13 @@ laravel_breeze_install () {
     npm run dev
 }
 
+# Laravel Fortify Install
+laravel_fortify_install () {
+    composer require laravel/fortify
+    php artisan vendor:publish --provider="Laravel\Fortify\FortifyServiceProvider"
+    php artisan migrate:refresh
+}
+
 # Laravel Jetstream Install
 laravel_jetstream_install () {
     jetstream_type=$1
@@ -37,6 +44,7 @@ usage () {
 Usage: $(basename "$0") [OPTION]...
       --breeze          install laravel-breeze
       --breeze=TYPE     install laravel-breeze TYPE: vue or react
+      --fortify         install laravel-fortify
       --jetstream       install laravel-jetstream
       --jetstream=TYPE  install laravel-jetstream TYPE: livewire or inertia
       --teams           add teams option for laravel-jetstream
@@ -69,6 +77,9 @@ while getopts :-: opt; do
                         breeze_type="${OPTARG##*=}"
                         ;;
                 esac
+                ;;
+            fortify)
+                use_fortify=true
                 ;;
             jetstream)
                 use_jetstream=true
@@ -127,6 +138,8 @@ done
 laravel_install
 if "${use_breeze}"; then
     laravel_breeze_install ${breeze_type}
+elif "${use_fortify}"; then
+    laravel_fortify_install
 elif "${use_jetstream}"; then
     laravel_jetstream_install ${jetstream_type} ${jetstream_options}
 fi
