@@ -27,7 +27,7 @@ services:
 
   db:
     container_name: laravel_db
-    image: mysql:5.7
+    image: mysql:8.2
     ports:
       - 3306:3306
     environment:
